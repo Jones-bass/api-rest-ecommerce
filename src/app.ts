@@ -1,9 +1,13 @@
 import express from "express";
 import { createDatabaseConnection } from "./database";
+import customerRoutes from "./routes/customer.routes";
+
+import loginRoutes from "./routes/session-auth.routes";
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
+import { createCustomerService } from "./services/customer.service";
 import session from "express-session";
 import jwt from "jsonwebtoken";
-import { createCustomerService } from "./services/customer.service";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -45,6 +49,8 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/jwt", jwtAuthRoutes);
+app.use("/session", loginRoutes);
+app.use("/customers", customerRoutes);
 
 app.get("/", async (req, res) => {
   await createDatabaseConnection();
@@ -54,23 +60,17 @@ app.get("/", async (req, res) => {
 
 app.listen(PORT, async () => {
   const customerService = await createCustomerService();
-
-  // Verifica se já existe um admin com esse email
-  const existingUser = await (await createDatabaseConnection()).userRepository.findOneBy({
+  //create a admin user
+  await customerService.registerCustomer({
+    name: "admin",
     email: "jonesbass.tb@gmail.com",
+    password: "123123",
+    phone: "79999591921",
+    address: "admin address",
   });
-
-  if (!existingUser) {
-    const newUser = await customerService.registerCustomer({
-      name: "Jones",
-      email: "jonesbass.tb@gmail.com",
-      password: "123123",
-    });
-    console.log("Admin criado:", newUser);
-  } else {
-    console.log("Admin já existe:", existingUser.email);
-  }
-
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+
 

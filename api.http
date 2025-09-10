@@ -9,3 +9,35 @@ Content-Type: application/json
   "password": "123123"
 }
 
+###
+
+@token = {{ jwt_login.response.body.token }}
+
+### 👉👉👉 Session login 👈👈👈
+
+POST http://localhost:3000/session/login
+Content-Type: application/json
+
+{
+  "email": "jonesbass.tb@gmail.com",
+  "password": "123123"
+}
+
+###
+POST http://localhost:3000/session/logout
+
+### 👉👉👉 Customer Endpoints 👈👈👈
+
+# @name createCustomer
+POST http://localhost:3000/customers/createCustomer
+Content-Type: application/json
+
+{
+  "name": "john_doe",
+  "email": "john@example.com",
+  "password": "securepassword",
+  "phone": "1234567890",
+  "address": "123 Main St"
+}
+
+###

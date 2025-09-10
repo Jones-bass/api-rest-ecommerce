@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
 import { User } from "./entities/User";
+import { Customer } from "./entities/Customer";
 
 let dataSource: DataSource;
 
@@ -7,8 +8,8 @@ export async function createDatabaseConnection() {
   if (!dataSource) {
     dataSource = new DataSource({
       type: "sqlite",
-      database: "database.sqlite", 
-      entities: [User],
+      database: ":memory:",
+      entities: [User, Customer],
       synchronize: true, 
     });
 
@@ -17,5 +18,6 @@ export async function createDatabaseConnection() {
 
   return {
     userRepository: dataSource.getRepository(User),
+    customerRepository: dataSource.getRepository(Customer),
   };
 }
