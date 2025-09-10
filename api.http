@@ -1,0 +1,11 @@
+### 👉👉👉 JWT login 👈👈👈
+
+# @name jwt_login
+POST http://localhost:3000/jwt/login
+Content-Type: application/json
+
+{
+  "email": "jonesbass.tb@gmail.com",
+  "password": "123123"
+}
+
