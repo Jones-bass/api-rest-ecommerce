@@ -4,7 +4,7 @@ import { User } from "../entities/User";
 import { createDatabaseConnection } from "../database";
 
 export class CustomerService {
-  constructor(private customerRepository: Repository<Customer>,private userRepository: Repository<User>) {}
+  constructor(private customerRepository: Repository<Customer>, private userRepository: Repository<User>) { }
 
   async registerCustomer(data: {
     name: string;
@@ -33,6 +33,7 @@ export class CustomerService {
 
     const customer = new Customer();
     customer.id = savedUser.id;
+    customer.name = name;
     customer.phone = phone;
     customer.address = address;
     customer.user = savedUser;
@@ -41,27 +42,30 @@ export class CustomerService {
   }
 
   async updateCustomer(data: {
-    email: string;
+    id: number;
+    name?: string;
     phone?: string;
     address?: string;
     password?: string;
   }): Promise<Customer | null> {
-    const { email, phone, address, password } = data;
+    const { id, name, phone, address, password } = data;
+
     const customer = await this.customerRepository.findOne({
-      where: { user: { email } },
+      where: { id },
       relations: ["user"],
     });
+
     if (!customer) {
       return null;
     }
 
+    if (name) customer.name = name;
     if (phone) customer.phone = phone;
     if (address) customer.address = address;
 
     if (password) {
-      const user = customer.user;
-      if (password) user.password = password;
-      await this.userRepository.save(user);
+      customer.user.password = password;
+      await this.userRepository.save(customer.user);
     }
 
     return await this.customerRepository.save(customer);
@@ -87,7 +91,6 @@ export class CustomerService {
     return { customers, total };
   }
 }
-
 
 export async function createCustomerService(): Promise<CustomerService> {
   const { customerRepository, userRepository } = await createDatabaseConnection();

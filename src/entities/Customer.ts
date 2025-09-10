@@ -8,6 +8,9 @@ export class Customer{
     id: number;
 
     @Column()
+    name: string;
+
+    @Column()
     phone: string;
 
     @Column()
