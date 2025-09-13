@@ -17,14 +17,7 @@ router.get('/getCustomerById', async (req, res) => {
     //res.json(customer);
 });
 
-router.post('/updateCustomer', async (req, res) => {
-    const customerService = await createCustomerService();
-    const { phone, address, email, password } = req.body;
-    const customer = await customerService.updateCustomer({phone, address, email, password});
-    res.json(customer);
-});
-
-router.post('/deleteCustomer', async (req, res) => {
+router.delete('/deleteCustomer', async (req, res) => {
     const customerService = await createCustomerService();
     const { id } = req.body;
     await customerService.deleteCustomer(parseInt(id));

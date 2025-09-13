@@ -1,12 +1,13 @@
 import express from "express";
 import { createDatabaseConnection } from "./database";
-import customerRoutes from "./routes/customer.routes";
+import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
 
-import loginRoutes from "./routes/session-auth.routes";
+import loginRoutes from "./routes/admin/admin-session-auth.routes";
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import { createCustomerService } from "./services/customer.service";
 import session from "express-session";
 import jwt from "jsonwebtoken";
+import { authenticateJWT } from "./middleware/auth.middleware.ts";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,8 +50,10 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/jwt", jwtAuthRoutes);
-app.use("/session", loginRoutes);
-app.use("/customers", customerRoutes);
+
+app.use("/admin/session", authenticateJWT, loginRoutes);
+app.use("/admin/customers", authenticateJWT, adminCustomerRoutes);
+
 
 app.get("/", async (req, res) => {
   await createDatabaseConnection();

@@ -41,3 +41,86 @@ Content-Type: application/json
 }
 
 ###
+
+
+@customer_id = {{ createCustomer.response.body.id }}
+
+### Get a customer by ID
+GET http://localhost:3000/admin/customers/getCustomerById?id={{ customer_id }}
+Authorization: Bearer {{ token }}
+
+### List customers in admin with pagination and optional filtering
+GET http://localhost:3000/admin/customers/listCustomers?page=1&limit=10
+Authorization: Bearer {{ token }}
+
+### Update a customer
+POST http://localhost:3000/admin/customers/updateCustomer
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "id": "{{ customer_id }}",
+  "email": "john@example.com",
+  "password": "newpassword",
+  "phone": "0987654321",
+  "address": "456 Elm St"
+}
+
+### Delete a customer
+POST http://localhost:3000/admin/customers/deleteCustomer
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "id": 1
+}
+
+
+### 👉👉👉 Product Endpoints 👈👈👈
+
+# @name createProduct
+POST http://localhost:3000/admin/products/createProduct
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "name": "Product Name",
+  "slug": "product-slug",
+  "description": "Product Description",
+  "price": 100,
+  "categoryIds": [ "{{ category_id }}" ]
+}
+
+###
+@product_id = {{ createProduct.response.body.id }}
+@product_slug = {{ createProduct.response.body.slug }}
+
+### Get a product by ID
+GET http://localhost:3000/admin/products/getProductById?id={{ product_id }}
+Authorization: Bearer {{ token }}
+
+### Get a product by slug
+GET http://localhost:3000/products/getProductBySlug?slug={{ product_slug }}
+
+### Update a product
+POST http://localhost:3000/admin/products/updateProduct
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "id": "{{ product_id }}",
+  "name": "Updated Product Name",
+  "slug": "{{ product_slug }}",
+  "description": "Updated Product Description",
+  "price": 150,
+  "categoryIds": [ "{{ category_id }}" ]
+}
+
+### Delete a product
+POST http://localhost:3000/admin/products/deleteProduct
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "id": "{{ product_id }}"
+}
