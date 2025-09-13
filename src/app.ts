@@ -2,8 +2,10 @@ import express from "express";
 import { createDatabaseConnection } from "./database";
 import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
 
-import loginRoutes from "./routes/admin/admin-session-auth.routes";
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
+import loginRoutes from "./routes/admin/admin-session-auth.routes";
+import adminProductRoutes from "./routes/admin/admin-product.routes";
+
 import { createCustomerService } from "./services/customer.service";
 import session from "express-session";
 import jwt from "jsonwebtoken";
@@ -52,6 +54,7 @@ app.use(async (req, res, next) => {
 app.use("/jwt", jwtAuthRoutes);
 
 app.use("/admin/session", authenticateJWT, loginRoutes);
+app.use("/admin/products", authenticateJWT, adminProductRoutes);
 app.use("/admin/customers", authenticateJWT, adminCustomerRoutes);
 
 
