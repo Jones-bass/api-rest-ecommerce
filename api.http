@@ -67,7 +67,7 @@ Authorization: Bearer {{ token }}
 }
 
 ### Delete a customer
-POST http://localhost:3000/admin/customers/deleteCustomer
+DELETE http://localhost:3000/admin/customers/deleteCustomer
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -123,4 +123,50 @@ Authorization: Bearer {{ token }}
 
 {
   "id": "{{ product_id }}"
+}
+
+### 👉👉👉 Category Endpoints 👈👈👈
+
+# @name createCategory
+POST http://localhost:3000/admin/categories/createCategory
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "name": "Category Name",
+  "slug": "category-slug"
+}
+
+###
+@category_id = {{ createCategory.response.body.id }}
+@category_slug = {{ createCategory.response.body.slug }}
+
+### Get a category by ID
+GET http://localhost:3000/categories/getCategoryBySlug?slug={{ category_slug }}
+
+### List categories with pagination and optional filtering
+GET http://localhost:3000/categories/listCategories?page=1&limit=10&name=Category
+
+### List categories in admin with pagination and optional filtering
+GET http://localhost:3000/admin/categories/listCategories?page=1&limit=10&name=Category
+Authorization: Bearer {{ token }}
+
+### Update a category
+POST http://localhost:3000/admin/categories/updateCategory
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "id": "{{ category_id }}",
+  "name": "Updated Category Name",
+  "slug": "updated-category-slug"
+}
+
+### Delete a category
+POST http://localhost:3000/admin/categories/deleteCategory
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+
+{
+  "id": "{{ category_id }}"
 }

@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
 import { User } from "./entities/User";
+import { Category } from "./entities/Category";
 import { Customer } from "./entities/Customer";
 import { Product } from "./entities/Product";
 
@@ -10,7 +11,7 @@ export async function createDatabaseConnection() {
     dataSource = new DataSource({
       type: "sqlite",
       database: ":memory:",
-      entities: [User, Customer, Product],
+      entities: [User, Customer, Product, Category],
       synchronize: true, 
     });
 
@@ -20,6 +21,7 @@ export async function createDatabaseConnection() {
   return {
     userRepository: dataSource.getRepository(User),
     customerRepository: dataSource.getRepository(Customer),
+    categoryRepository: dataSource.getRepository(Category),
     productRepository: dataSource.getRepository(Product),
   };
 }

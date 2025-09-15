@@ -3,8 +3,11 @@ import { createDatabaseConnection } from "./database";
 import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
 
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
+import categoryRoutes from "./routes/category.routes";
+
 import loginRoutes from "./routes/admin/admin-session-auth.routes";
 import adminProductRoutes from "./routes/admin/admin-product.routes";
+import adminCategoryRoutes from "./routes/admin/admin-category.routes";
 
 import { createCustomerService } from "./services/customer.service";
 import session from "express-session";
@@ -52,11 +55,12 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/jwt", jwtAuthRoutes);
+app.use("/categories", categoryRoutes);
 
 app.use("/admin/session", authenticateJWT, loginRoutes);
 app.use("/admin/products", authenticateJWT, adminProductRoutes);
 app.use("/admin/customers", authenticateJWT, adminCustomerRoutes);
-
+app.use("/admin/categories", authenticateJWT, adminCategoryRoutes);
 
 app.get("/", async (req, res) => {
   await createDatabaseConnection();
