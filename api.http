@@ -1,3 +1,4 @@
+
 ### 👉👉👉 JWT login 👈👈👈
 
 # @name jwt_login
@@ -29,7 +30,8 @@ POST http://localhost:3000/session/logout
 ### 👉👉👉 Customer Endpoints 👈👈👈
 
 # @name createCustomer
-POST http://localhost:3000/customers/createCustomer
+POST http://localhost:3000/admin/customers/createCustomer
+Authorization: Bearer {{ token }}
 Content-Type: application/json
 
 {
@@ -41,7 +43,6 @@ Content-Type: application/json
 }
 
 ###
-
 
 @customer_id = {{ createCustomer.response.body.id }}
 
@@ -88,7 +89,7 @@ Authorization: Bearer {{ token }}
   "slug": "product-slug",
   "description": "Product Description",
   "price": 100,
-  "categoryIds": [ "{{ category_id }}" ]
+  "categoryIds": [ "1" ]
 }
 
 ###
@@ -103,7 +104,7 @@ Authorization: Bearer {{ token }}
 GET http://localhost:3000/products/getProductBySlug?slug={{ product_slug }}
 
 ### Update a product
-POST http://localhost:3000/admin/products/updateProduct
+PUT http://localhost:3000/admin/products/updateProduct
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -122,7 +123,7 @@ Content-Type: application/json
 Authorization: Bearer {{ token }}
 
 {
-  "id": "{{ product_id }}"
+  "id": 1
 }
 
 ### 👉👉👉 Category Endpoints 👈👈👈
@@ -170,3 +171,37 @@ Authorization: Bearer {{ token }}
 {
   "id": "{{ category_id }}"
 }
+
+### 👉👉👉 Cart Endpoints 👈👈👈
+
+### Add an item to the cart "customerId": "{{ customer_id }}",
+# @name addItemToCart
+POST http://localhost:3000/carts/addItemToCart
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 1
+}
+
+###
+
+@cart_id = {{ addItemToCart.response.body.id }}
+
+### Get a cart by ID
+GET http://localhost:3000/carts/getCart
+Cookie: connect.sid=s%3AChsdLB6EoAAXSn-bMQktOpIe_Oub7_kZ.l2CdzslYunIw4Teso4zp4jOLt80BQ5iU4o%2B4zLk8Yjs; Path=/; HttpOnly
+
+### Remove an item from the cart
+POST http://localhost:3000/carts/removeItemFromCart
+Content-Type: application/json
+Cookie: connect.sid=s%3AChsdLB6EoAAXSn-bMQktOpIe_Oub7_kZ.l2CdzslYunIw4Teso4zp4jOLt80BQ5iU4o%2B4zLk8Yjs; Path=/; HttpOnly
+
+{
+  "cartItemId": 1
+}
+
+### Clear the cart
+POST http://localhost:3000/carts/clearCart
+Cookie: connect.sid=s%3AChsdLB6EoAAXSn-bMQktOpIe_Oub7_kZ.l2CdzslYunIw4Teso4zp4jOLt80BQ5iU4o%2B4zLk8Yjs; Path=/; HttpOnly
+

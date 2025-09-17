@@ -1,18 +1,20 @@
 import express from "express";
+import session from "express-session";
+import jwt from "jsonwebtoken";
 import { createDatabaseConnection } from "./database";
-import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
+import { createCustomerService } from "./services/customer.service";
 
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import categoryRoutes from "./routes/category.routes";
+import cartRoutes from "./routes/cart.routes";
 
 import loginRoutes from "./routes/admin/admin-session-auth.routes";
+import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
 import adminProductRoutes from "./routes/admin/admin-product.routes";
 import adminCategoryRoutes from "./routes/admin/admin-category.routes";
 
-import { createCustomerService } from "./services/customer.service";
-import session from "express-session";
-import jwt from "jsonwebtoken";
 import { authenticateJWT } from "./middleware/auth.middleware.ts";
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,6 +58,7 @@ app.use(async (req, res, next) => {
 
 app.use("/jwt", jwtAuthRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/carts", cartRoutes);
 
 app.use("/admin/session", authenticateJWT, loginRoutes);
 app.use("/admin/products", authenticateJWT, adminProductRoutes);
