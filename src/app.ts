@@ -7,6 +7,7 @@ import { createCustomerService } from "./services/customer.service";
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import categoryRoutes from "./routes/category.routes";
 import cartRoutes from "./routes/cart.routes";
+import orderRoutes from "./routes/order.routes";
 
 import loginRoutes from "./routes/admin/admin-session-auth.routes";
 import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
@@ -59,6 +60,7 @@ app.use(async (req, res, next) => {
 app.use("/jwt", jwtAuthRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/carts", cartRoutes);
+app.use("/orders", orderRoutes);
 
 app.use("/admin/session", authenticateJWT, loginRoutes);
 app.use("/admin/products", authenticateJWT, adminProductRoutes);

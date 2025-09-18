@@ -205,3 +205,19 @@ Cookie: connect.sid=s%3AChsdLB6EoAAXSn-bMQktOpIe_Oub7_kZ.l2CdzslYunIw4Teso4zp4jO
 POST http://localhost:3000/carts/clearCart
 Cookie: connect.sid=s%3AChsdLB6EoAAXSn-bMQktOpIe_Oub7_kZ.l2CdzslYunIw4Teso4zp4jOLt80BQ5iU4o%2B4zLk8Yjs; Path=/; HttpOnly
 
+
+### 👉👉👉 Order Endpoints 👈👈👈
+
+### Create an order
+POST http://localhost:3000/orders/createOrder
+Content-Type: application/json
+Authorization: Bearer {{ token }}
+Cookie: connect.sid=s%3AifNqvlTcIvWVJGGz2M-cMP_6dLtfPr6G.UQFgCITuOMVP%2FffshnV5HLdlpYoFhTFRjcEUM8j%2FsEY; Path=/; HttpOnly
+
+{
+  "payment_method": "CREDIT_CARD"
+}
+
+### List orders with pagination and optional filtering
+GET http://localhost:3000/orders/listOrders?page=1&limit=10
+Authorization: Bearer {{ token }}
