@@ -4,7 +4,10 @@ import { User } from "../entities/User";
 import { createDatabaseConnection } from "../database";
 
 export class CustomerService {
-  constructor(private customerRepository: Repository<Customer>, private userRepository: Repository<User>) { }
+  constructor(
+    private customerRepository: Repository<Customer>,
+    private userRepository: Repository<User>
+  ) {}
 
   async registerCustomer(data: {
     name: string;
@@ -33,7 +36,6 @@ export class CustomerService {
 
     const customer = new Customer();
     customer.id = savedUser.id;
-    customer.name = name;
     customer.phone = phone;
     customer.address = address;
     customer.user = savedUser;
@@ -42,30 +44,27 @@ export class CustomerService {
   }
 
   async updateCustomer(data: {
-    id: number;
-    name?: string;
+    customerId: number;
     phone?: string;
     address?: string;
     password?: string;
   }): Promise<Customer | null> {
-    const { id, name, phone, address, password } = data;
-
+    const { customerId, phone, address, password } = data;
     const customer = await this.customerRepository.findOne({
-      where: { id },
+      where: { id: customerId },
       relations: ["user"],
     });
-
     if (!customer) {
       return null;
     }
 
-    if (name) customer.name = name;
     if (phone) customer.phone = phone;
     if (address) customer.address = address;
 
     if (password) {
-      customer.user.password = password;
-      await this.userRepository.save(customer.user);
+      const user = customer.user;
+      if (password) user.password = password;
+      await this.userRepository.save(user);
     }
 
     return await this.customerRepository.save(customer);
@@ -93,6 +92,7 @@ export class CustomerService {
 }
 
 export async function createCustomerService(): Promise<CustomerService> {
-  const { customerRepository, userRepository } = await createDatabaseConnection();
+  const { customerRepository, userRepository } =
+    await createDatabaseConnection();
   return new CustomerService(customerRepository, userRepository);
 }

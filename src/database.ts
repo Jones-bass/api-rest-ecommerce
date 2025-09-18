@@ -1,12 +1,12 @@
 import { DataSource } from "typeorm";
-import { User } from "./entities/User";
-import { Category } from "./entities/Category";
-import { Customer } from "./entities/Customer";
 import { Product } from "./entities/Product";
-import { Cart, CartItem } from "./entities/Cart";
-import { Payment } from "./entities/Payment";
-import { Order } from "./entities/Order";
+import { Category } from "./entities/Category";
 import { OrderItem } from "./entities/OrderItem";
+import { Order } from "./entities/Order";
+import { Payment } from "./entities/Payment";
+import { Customer } from "./entities/Customer";
+import { User } from "./entities/User";
+import { Cart, CartItem } from "./entities/Cart";
 
 let dataSource: DataSource;
 
@@ -14,11 +14,22 @@ export async function createDatabaseConnection() {
   if (!dataSource) {
     dataSource = new DataSource({
       type: "sqlite",
+      //database: "database.sqlite",
       database: ":memory:",
-      entities: [User, Customer, Product, Cart, CartItem, Category, OrderItem, Order, Payment],
-      synchronize: true, 
+      entities: [
+        User,
+        Customer,
+        Product,
+        Cart,
+        CartItem,
+        Category,
+        OrderItem,
+        Order,
+        Payment,
+      ],
+      //logging: true,
+      synchronize: true,
     });
-
     await dataSource.initialize();
   }
 
