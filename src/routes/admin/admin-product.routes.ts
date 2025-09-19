@@ -22,7 +22,7 @@ router.get("/:productId", async (req, res) => {
   res.json(product);
 });
 
-router.post("/:productId", async (req, res) => {
+router.patch("/:productId", async (req, res) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   const product = await productService.updateProduct({
@@ -36,7 +36,7 @@ router.post("/:productId", async (req, res) => {
   res.json(product);
 });
 
-router.post("/:productId/delete", async (req, res) => {
+router.delete("/:productId/delete", async (req, res) => {
   const productService = await createProductService();
   await productService.deleteProduct(+req.params.productId);
   res.send({ message: "Product deleted successfully" });

@@ -2,9 +2,9 @@ import { Repository } from "typeorm";
 import { Order } from "../entities/Order";
 import { OrderItem } from "../entities/OrderItem";
 import { Cart } from "../entities/Cart";
+import { Payment, PaymentMethod, PaymentStatus } from "../entities/Payment";
 import { createDatabaseConnection } from "../database";
 import { Customer } from "../entities/Customer";
-import { Payment, PaymentMethod, PaymentStatus } from "../entities/Payment";
 
 export class OrderService {
   constructor(
@@ -18,12 +18,12 @@ export class OrderService {
   async createOrder(data: {
     customerId: number;
     payment_method: PaymentMethod;
-    cart_id: number;
+    cart_uuid: string;
     card_token?: string
   }): Promise<{ order: Order; payment: Payment }> {
     const { customerId, payment_method, card_token } = data;
     const cart = await this.cartRepository.findOne({
-      where: {id: data.cart_id },
+      where: {uuid: data.cart_uuid },
       relations: ["items", "items.product", "customer"],
     });
 

@@ -55,7 +55,7 @@ GET http://localhost:3000/admin/customers?page=1&limit=10
 Authorization: Bearer {{ token }}
 
 ### Update a customer
-PATCH  http://localhost:3000/admin/customers/2
+PATCH http://localhost:3000/admin/customers/{{ customer_id }}
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -66,7 +66,7 @@ Authorization: Bearer {{ token }}
 }
 
 ### Delete a customer
-POST http://localhost:3000/admin/customers/{{ customer_id }}/delete
+DELETE http://localhost:3000/admin/customers/{{ customer_id }}
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -101,7 +101,7 @@ GET http://localhost:3000/admin/categories?page=1&limit=10&name=Category
 Authorization: Bearer {{ token }}
 
 ### Update a category
-POST http://localhost:3000/admin/categories/{{ category_id }}
+PATCH http://localhost:3000/admin/categories/{{ category_id }}
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -111,7 +111,7 @@ Authorization: Bearer {{ token }}
 }
 
 ### Delete a category
-POST http://localhost:3000/admin/categories/{{ category_id }}/delete
+DELETE http://localhost:3000/admin/categories/{{ category_id }}
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -147,7 +147,7 @@ Authorization: Bearer {{ token }}
 GET http://localhost:3000/products/{{ product_slug }}
 
 ### Update a product
-POST http://localhost:3000/admin/products/{{ product_id }}
+PATCH http://localhost:3000/admin/products/{{ product_id }}
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -161,7 +161,7 @@ Authorization: Bearer {{ token }}
 }
 
 ### Delete a product
-POST http://localhost:3000/admin/products/{{ product_id }}/delete
+DELETE http://localhost:3000/admin/products/{{ product_id }}
 Content-Type: application/json
 Authorization: Bearer {{ token }}
 
@@ -169,7 +169,7 @@ Authorization: Bearer {{ token }}
   "id": "{{ product_id }}"
 }
 
-### List products with pagination and optional filtering&name=Product&categories_slug=category-slug&user_id=1
+### List products with pagination and optional filtering&name=Product&categories_slug=category-slug,xpto1,xpto2
 GET http://localhost:3000/products?page=1&limit=10
 
 ### List products in admin with pagination and optional filtering
@@ -182,9 +182,18 @@ Authorization: Bearer {{ token }}
 
 ### 👉👉👉 Cart Endpoints 👈👈👈
 
+### Create a cart
+
+# @name createCart
+POST http://localhost:3000/carts
+
+###
+
+@cart_uuid = {{ createCart.response.body.uuid }}
+
 ### Add an item to the cart "customerId": "{{ customer_id }}",
 # @name addItemToCart
-POST http://localhost:3000/cart/items
+POST http://localhost:3000/carts/{{cart_uuid}}/items
 Content-Type: application/json
 
 {
@@ -197,21 +206,18 @@ Content-Type: application/json
 @cart_id = {{ addItemToCart.response.body.id }}
 
 ### Get a cart by ID
-GET http://localhost:3000/cart
-Cookie: connect.sid=s%3AHoa-z1TZbcR_umqNaJw_sKRzAQdwFhCg.w0cvU3eetkMYrIDK1hweonbTvjBWXnq0oh2QIDVoktY; Path=/; HttpOnly
+GET http://localhost:3000/carts/{{ cart_uuid }}
 
 ### Remove an item from the cart
-POST http://localhost:3000/cart/items/1/remove
+DELETE http://localhost:3000/carts/{{cart_uuid}}/items/1
 Content-Type: application/json
-Cookie: connect.sid=s%3AHoa-z1TZbcR_umqNaJw_sKRzAQdwFhCg.w0cvU3eetkMYrIDK1hweonbTvjBWXnq0oh2QIDVoktY; Path=/; HttpOnly
 
 {
   "cartItemId": 1
 }
 
 ### Clear the cart
-POST http://localhost:3000/cart/clear
-Cookie: connect.sid=s%3AHoa-z1TZbcR_umqNaJw_sKRzAQdwFhCg.w0cvU3eetkMYrIDK1hweonbTvjBWXnq0oh2QIDVoktY; Path=/; HttpOnly
+POST http://localhost:3000/carts/{{cart_uuid}}/clear
 
 ### 👉👉👉 Order Endpoints 👈👈👈
 
@@ -219,10 +225,10 @@ Cookie: connect.sid=s%3AHoa-z1TZbcR_umqNaJw_sKRzAQdwFhCg.w0cvU3eetkMYrIDK1hweonb
 POST http://localhost:3000/orders
 Content-Type: application/json
 Authorization: Bearer {{ token }}
-Cookie: connect.sid=s%3AsJQaD-wpVs-ALjMkuUreujUv4MP97tDV.vocGV%2BEZt9PJBVUw%2BPSIp9t9dH49pJhSCdOm7M3xftM; Path=/; HttpOnly
 
 {
-  "payment_method": "CREDIT_CARD"
+  "payment_method": "CREDIT_CARD",
+  "cart_uuid": "{{ cart_uuid }}"
 }
 
 ### List orders with pagination and optional filtering

@@ -16,19 +16,11 @@ import adminCategoryRoutes from "./routes/admin/admin-category.routes";
 
 import { authenticateJWT } from "./middleware/auth.middleware.ts";
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// comum API terem multiplas formas de auth
 app.use(express.json());
-app.use(
-  session({
-    secret: "123",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
-  })
-);
 
 app.use(async (req, res, next) => {
   const protectedRoutes = ["/admin", "/orders"];
@@ -40,7 +32,7 @@ app.use(async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      return res.status(200).send({ message: "Unauthorized" });
+      return res.status(200).send({message: "Unauthorized"});
     }
 
     const token = authHeader.split(" ")[1];
@@ -50,7 +42,7 @@ app.use(async (req, res, next) => {
       //@ts-expect-error
       req.userId = decoded.sub;
     } catch (e) {
-      return res.status(200).send({ message: "Unauthorized" });
+      return res.status(200).send({message: "Unauthorized"});
     }
   }
 
@@ -72,7 +64,6 @@ app.get("/", async (req, res) => {
   res.send("Hello World!");
 });
 
-
 app.listen(PORT, async () => {
   const customerService = await createCustomerService();
   //create a admin user
@@ -85,7 +76,3 @@ app.listen(PORT, async () => {
   });
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
-
-
