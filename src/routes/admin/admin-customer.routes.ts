@@ -3,7 +3,7 @@ import { createCustomerService } from "../../services/customer.service";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const customerService = await createCustomerService();
   const { name, email, password, phone, address } = req.body;
   const customer = await customerService.registerCustomer({

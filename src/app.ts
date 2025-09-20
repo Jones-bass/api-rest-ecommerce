@@ -24,10 +24,33 @@ import {
 } from "./services/customer.service";
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 // comum API terem multiplas formas de auth
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(async (req, res, next) => {
+  if (!req.headers["content-type"]) {
+    return next();
+  }
+
+  const allowedContentTypes = [
+    "application/json",
+    "application/x-www-form-urlencoded",
+  ];
+
+  if (!allowedContentTypes.includes(req.headers["content-type"])) {
+    return res.status(415).json({
+      title: "Unsupported Media Type",
+      status: 415,
+      detail:
+        "Unsupported Media Type. Please use application/json or application/x-www-form-urlencoded",
+    });
+  }
+
+  next();
+});
+
 
 app.use(async (req, res, next) => {
   const protectedRoutes = ["/admin", "/orders"];
@@ -54,6 +77,41 @@ app.use(async (req, res, next) => {
   }
 
   next();
+});
+
+app.use(async (req, res, next) => {
+  const routesAllowingAlternateAccept = [
+    {
+      url: "/admin/products",
+      method: "GET",
+      accept: "text/csv",
+    },
+  ];
+
+  const acceptHeader = req.headers["accept"];
+  if (!acceptHeader) {
+    return next();
+  }
+
+  if (acceptHeader === "application/json") {
+    return next();
+  }
+
+  const route = routesAllowingAlternateAccept.find((route) => {
+    return req.url.startsWith(route.url) && req.method === route.method;
+  });
+
+  if (route && acceptHeader === route.accept) {
+    return next();
+  }
+
+  return res
+    .status(406)
+    .send({
+      title: "Not Acceptable",
+      status: 406,
+      detail: `Not Acceptable format requested: ${req.headers["accept"]}, only application/json and text/csv are supported`,
+    });
 });
 
 app.use("/jwt", jwtAuthRoutes);
