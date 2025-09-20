@@ -1,8 +1,7 @@
-import express from "express";
-import session from "express-session";
+import express, { NextFunction, Request, Response } from "express";
+
 import jwt from "jsonwebtoken";
 import { createDatabaseConnection } from "./database";
-import { createCustomerService } from "./services/customer.service";
 
 import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import categoryRoutes from "./routes/category.routes";
@@ -15,10 +14,18 @@ import adminProductRoutes from "./routes/admin/admin-product.routes";
 import adminCategoryRoutes from "./routes/admin/admin-category.routes";
 
 import { authenticateJWT } from "./middleware/auth.middleware.ts";
+import { Resource } from "./resource.ts/resource";
+
+import { ValidationError } from "./errors";
+
+import {
+  createCustomerService,
+  UserAlreadyExistsError,
+} from "./services/customer.service";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
+const PORT = process.env.PORT || 3000;
 // comum API terem multiplas formas de auth
 app.use(express.json());
 
@@ -32,7 +39,7 @@ app.use(async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      return res.status(200).send({message: "Unauthorized"});
+      return res.status(200).send({ message: "Unauthorized" });
     }
 
     const token = authHeader.split(" ")[1];
@@ -42,7 +49,7 @@ app.use(async (req, res, next) => {
       //@ts-expect-error
       req.userId = decoded.sub;
     } catch (e) {
-      return res.status(200).send({message: "Unauthorized"});
+      return res.status(200).send({ message: "Unauthorized" });
     }
   }
 
@@ -62,6 +69,56 @@ app.use("/admin/categories", authenticateJWT, adminCategoryRoutes);
 app.get("/", async (req, res) => {
   await createDatabaseConnection();
   res.send("Hello World!");
+});
+
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  if (!(error instanceof Error)) {
+    return next(error);
+  }
+
+  console.error(error);
+
+  if (error instanceof SyntaxError) {
+    return res.status(400).send({
+      title: "Bad Request",
+      status: 400,
+      detail: error.message,
+    });
+  }
+
+  if (error instanceof UserAlreadyExistsError) {
+    return res.status(409).send({
+      title: "Conflict",
+      status: 409,
+      detail: error.message,
+    });
+  }
+
+  if (error instanceof ValidationError) {
+    return res.status(422).send({
+      title: "Unprocessable Entity",
+      status: 422,
+      detail: {
+        errors: error.error.map((e) => ({
+          field: e.property,
+          constraints: e.constraints,
+        })),
+      },
+    });
+  }
+
+  res.status(500).send({
+    title: "Internal Server Error",
+    status: 500,
+    detail: "An unexpected error occurred",
+  });
+});
+
+app.use((result: Resource, req: Request, res: Response, next: NextFunction) => {
+  if (result instanceof Resource) {
+    return res.json(result.toJson());
+  }
+  next(result);
 });
 
 app.listen(PORT, async () => {
