@@ -1,10 +1,21 @@
 import { Router } from "express";
 import { createProductService } from "../../services/product.service";
-import { Resource, ResourceCollection } from "../../resource.ts/resource";
-
+import { Resource, ResourceCollection } from "../../http/resource";
+import cors from "cors";
+import { defaultCorsOptions } from "../../http/cors";
 const router = Router();
 
-router.post("/", async (req, res, next) => {
+const corsCollection = cors({
+  ...defaultCorsOptions,
+  methods: ["GET", "POST"],
+});
+
+const corsItem = cors({
+  ...defaultCorsOptions,
+  methods: ["GET", "PATCH", "DELETE"],
+});
+
+router.post("/", corsCollection, async (req, res, next) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   try {
@@ -23,7 +34,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.get("/:productId", async (req, res) => {
+router.get("/:productId", corsItem, async (req, res) => {
   const productService = await createProductService();
   const product = await productService.getProductById(+req.params.productId);
   if (!product) {
@@ -37,7 +48,7 @@ router.get("/:productId", async (req, res) => {
   res.json(resource);
 });
 
-router.patch("/:productId", async (req, res) => {
+router.patch("/:productId", corsItem, async (req, res) => {
   const productService = await createProductService();
   const { name, slug, description, price, categoryIds } = req.body;
   const product = await productService.updateProduct({
@@ -52,13 +63,13 @@ router.patch("/:productId", async (req, res) => {
   res.json(resource);
 });
 
-router.delete("/:productId", async (req, res) => {
+router.delete("/:productId", corsItem, async (req, res) => {
   const productService = await createProductService();
   await productService.deleteProduct(+req.params.productId);
   res.status(204).send();
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", corsCollection, async (req, res, next) => {
   const productService = await createProductService();
   const {
     page = 1,
@@ -78,7 +89,11 @@ router.get("/", async (req, res, next) => {
     },
   });
 
-  if(!req.headers['accept'] || req.headers['accept'] === 'application/json') {
+  if (
+    !req.headers["accept"] ||
+    req.headers["accept"] === "*/*" ||
+    req.headers["accept"] === "application/json"
+  ) {
     const collection = new ResourceCollection(products, {
       paginationData: {
         total,
@@ -89,7 +104,7 @@ router.get("/", async (req, res, next) => {
     return next(collection);
   }
 
-  if(req.headers['accept'] === 'text/csv') {
+  if (req.headers["accept"] === "text/csv") {
     const csv = products
       .map((product) => {
         return `${product.name},${product.slug},${product.description},${product.price}`;
@@ -99,5 +114,8 @@ router.get("/", async (req, res, next) => {
     return res.send(csv);
   }
 });
+
+router.options("/", corsCollection);
+router.options("/:productId", corsItem);
 
 export default router;

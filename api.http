@@ -26,12 +26,23 @@ Content-Type: application/json
 ###
 POST http://localhost:3000/session/logout
 
-
 ### 👉👉👉 Customer Endpoints 👈👈👈
 
-# @name createCustomer
+###
 POST http://localhost:3000/admin/customers
-Authorization: Bearer {{ token }}
+Content-Type: application/json
+
+<xml></xml>
+
+### With form-urlencoded
+POST http://localhost:3000/customers
+Content-Type: application/x-www-form-urlencoded
+
+name=john_doe&email=john@example.com&password=securepassword&phone=1234567890&address=123 Main St
+
+###
+# @name createCustomer
+POST http://localhost:3000/customers
 Content-Type: application/json
 
 {
@@ -169,15 +180,25 @@ Authorization: Bearer {{ token }}
   "id": "{{ product_id }}"
 }
 
+### OPTIONS /products
+
+OPTIONS http://localhost:3000/admin/products
+
+###
+
+OPTIONS http://localhost:3000/admin/products/1
+
 ### List products with pagination and optional filtering&name=Product&categories_slug=category-slug,xpto1,xpto2
 GET http://localhost:3000/products?page=1&limit=10
 
 ### List products in admin with pagination and optional filtering &name=Product&categories_slug=category-slug&user_id=1
 GET http://localhost:3000/admin/products?page=1&limit=10
 Authorization: Bearer {{ token }}
+Content-Type: application/x-www-form-urlencoded
+Accept: text/css
 
 ### Get csv of products
-GET http://localhost:3000/admin/products.csv
+GET http://localhost:3000/admin/products/listProducts.csv
 Authorization: Bearer {{ token }}
 
 ### 👉👉👉 Cart Endpoints 👈👈👈

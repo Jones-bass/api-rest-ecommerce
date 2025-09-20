@@ -14,7 +14,6 @@ import adminProductRoutes from "./routes/admin/admin-product.routes";
 import adminCategoryRoutes from "./routes/admin/admin-category.routes";
 
 import { authenticateJWT } from "./middleware/auth.middleware.ts";
-import { Resource } from "./resource.ts/resource";
 
 import { ValidationError } from "./errors";
 
@@ -22,6 +21,7 @@ import {
   createCustomerService,
   UserAlreadyExistsError,
 } from "./services/customer.service";
+import { Resource } from "./http/resource";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,8 +51,11 @@ app.use(async (req, res, next) => {
   next();
 });
 
-
 app.use(async (req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return next();
+  }
+
   const protectedRoutes = ["/admin", "/orders"];
   const isProtectedRoute = protectedRoutes.some((route) =>
     req.url.startsWith(route)
@@ -93,7 +96,7 @@ app.use(async (req, res, next) => {
     return next();
   }
 
-  if (acceptHeader === "application/json") {
+  if (acceptHeader === "application/json" || acceptHeader === "*/*") {
     return next();
   }
 
@@ -105,13 +108,11 @@ app.use(async (req, res, next) => {
     return next();
   }
 
-  return res
-    .status(406)
-    .send({
-      title: "Not Acceptable",
-      status: 406,
-      detail: `Not Acceptable format requested: ${req.headers["accept"]}, only application/json and text/csv are supported`,
-    });
+  return res.status(406).send({
+    title: "Not Acceptable",
+    status: 406,
+    detail: `Not Acceptable format requested: ${req.headers["accept"]}, only application/json and text/csv are supported`,
+  });
 });
 
 app.use("/jwt", jwtAuthRoutes);
@@ -178,6 +179,7 @@ app.use((result: Resource, req: Request, res: Response, next: NextFunction) => {
   }
   next(result);
 });
+
 
 app.listen(PORT, async () => {
   const customerService = await createCustomerService();
