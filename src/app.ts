@@ -1,33 +1,67 @@
 import express, { NextFunction, Request, Response } from "express";
-
-import jwt from "jsonwebtoken";
 import { createDatabaseConnection } from "./database";
-
-import jwtAuthRoutes from "./routes/jwt-auth.routes";
+import customerRoutes from "./routes/admin/admin-customer.routes";
 import categoryRoutes from "./routes/category.routes";
+import productRoutes from "./routes/product.routes.ts";
 import cartRoutes from "./routes/cart.routes";
 import orderRoutes from "./routes/order.routes";
-
-import loginRoutes from "./routes/admin/admin-session-auth.routes";
-import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
 import adminProductRoutes from "./routes/admin/admin-product.routes";
+import adminCustomerRoutes from "./routes/admin/admin-customer.routes";
 import adminCategoryRoutes from "./routes/admin/admin-category.routes";
-
-import { authenticateJWT } from "./middleware/auth.middleware.ts";
-
-import { ValidationError } from "./errors";
-
+import loginRoutes from "./routes/session-auth.routes";
+import jwtAuthRoutes from "./routes/jwt-auth.routes";
 import {
   createCustomerService,
   UserAlreadyExistsError,
 } from "./services/customer.service";
-import { IResource, Resource } from "./http/resource";
+//import session from "express-session";
+import jwt from "jsonwebtoken";
+import { IResource } from "./http/resource";
+import { ValidationError } from "./errors";
+
+import session from "express-session";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 // comum API terem multiplas formas de auth
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
+// ...
+
+app.use(
+  session({
+    secret: "super-secret-key", // ⚠️ store in process.env in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // set to true if using https
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60, // 1 hour
+    },
+  })
+);
+
+//log requests
+app.use(async (req, res, next) => {
+  console.log(`request - [${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+//log responses headers
+app.use(async (req, res, next) => {
+  res.on("finish", () => {
+    console.log(
+      `response - [${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} ${res.statusMessage}`
+    );
+    console.log(res.getHeaders());
+  });
+
+  
+
+  next();
+});
 
 app.use(async (req, res, next) => {
   if (!req.headers["content-type"]) {
@@ -116,14 +150,15 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/jwt", jwtAuthRoutes);
+app.use("/session", loginRoutes);
+app.use("/customers", customerRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/products", productRoutes);
 app.use("/carts", cartRoutes);
 app.use("/orders", orderRoutes);
-
-app.use("/admin/session", authenticateJWT, loginRoutes);
-app.use("/admin/products", authenticateJWT, adminProductRoutes);
-app.use("/admin/customers", authenticateJWT, adminCustomerRoutes);
-app.use("/admin/categories", authenticateJWT, adminCategoryRoutes);
+app.use("/admin/products", adminProductRoutes);
+app.use("/admin/customers", adminCustomerRoutes);
+app.use("/admin/categories", adminCategoryRoutes);
 
 app.get("/", async (req, res) => {
   await createDatabaseConnection();
@@ -134,7 +169,6 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   if (!(error instanceof Error)) {
     return next(error);
   }
-
   console.error(error);
 
   if (error instanceof SyntaxError) {
@@ -179,7 +213,6 @@ app.use((result: IResource, req: Request, res: Response, next: NextFunction) => 
   }
   next(result);
 });
-
 
 app.listen(PORT, async () => {
   const customerService = await createCustomerService();
